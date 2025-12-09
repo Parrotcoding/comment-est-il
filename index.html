@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple Audio Player</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        background: #0f172a;
+        color: white;
+        display: flex;
+        height: 100vh;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .player {
+        background: #1e293b;
+        padding: 30px;
+        border-radius: 18px;
+        width: 300px;
+        text-align: center;
+        box-shadow: 0 0 30px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+        margin: 0 0 20px;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        display: inline-block;
+        margin: 5px;
+        padding: 10px 18px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: none;
+        transition: 0.15s;
+        user-select: none;
+    }
+
+    .start { background: #4f46e5; color: white; }
+    .pause { background: #64748b; }
+    .loop { background: #0ea5e9; }
+
+    .btn:hover { opacity: 0.85; }
+
+    .loop.active {
+        background: #22c55e !important;
+        color: #0f172a;
+    }
+
+    #status {
+        margin-top: 20px;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="player">
+    <h2>audio.mp3</h2>
+
+    <button class="btn start" id="playBtn">Start</button>
+    <button class="btn pause" id="pauseBtn">Pause</button>
+    <button class="btn loop" id="loopBtn">Loop Off</button>
+
+    <div id="status">Ready</div>
+</div>
+
+<audio id="audio" src="audio.mp3"></audio>
+
+<script>
+    const audio = document.getElementById("audio");
+    const playBtn = document.getElementById("playBtn");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const loopBtn = document.getElementById("loopBtn");
+    const status = document.getElementById("status");
+
+    playBtn.onclick = () => {
+        audio.play();
+        status.textContent = "Playing";
+    };
+
+    pauseBtn.onclick = () => {
+        audio.pause();
+        status.textContent = "Paused";
+    };
+
+    loopBtn.onclick = () => {
+        audio.loop = !audio.loop;
+        loopBtn.classList.toggle("active", audio.loop);
+        loopBtn.textContent = audio.loop ? "Loop On" : "Loop Off";
+    };
+
+    audio.onended = () => {
+        if (!audio.loop) status.textContent = "Finished";
+    };
+</script>
+
+</body>
+</html>
