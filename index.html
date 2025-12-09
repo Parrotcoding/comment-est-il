@@ -2,63 +2,102 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Simple Audio Player</title>
+<title>Modern Audio Player</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
     body {
         margin: 0;
         font-family: system-ui, sans-serif;
-        background: #0f172a;
-        color: white;
-        display: flex;
+        background: linear-gradient(135deg, #c7e9ff, #ffc2c2, #ffffff);
         height: 100vh;
-        align-items: center;
+        display: flex;
         justify-content: center;
+        align-items: center;
+        padding: 20px;
     }
 
     .player {
-        background: #1e293b;
-        padding: 30px;
-        border-radius: 18px;
-        width: 300px;
+        width: 360px;
+        background: #ffffffcc;
+        backdrop-filter: blur(20px);
+        border-radius: 26px;
+        padding: 26px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
         text-align: center;
-        box-shadow: 0 0 30px rgba(0,0,0,0.4);
+    }
+
+    .cover {
+        width: 230px;
+        height: 230px;
+        margin: 0 auto 20px;
+        border-radius: 22px;
+        background: linear-gradient(135deg, #89cff0, #ffb3b3);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
 
     h2 {
-        margin: 0 0 20px;
+        margin: 12px 0 20px;
+        font-size: 1.1rem;
         font-weight: 600;
-        font-size: 1.2rem;
     }
 
-    .btn {
-        display: inline-block;
-        margin: 5px;
-        padding: 10px 18px;
-        border-radius: 30px;
-        font-size: 0.9rem;
+    .controls {
+        margin-top: 18px;
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+        font-size: 2rem;
+    }
+
+    .controls span {
         cursor: pointer;
-        border: none;
-        transition: 0.15s;
         user-select: none;
+        transition: 0.15s;
     }
 
-    .start { background: #4f46e5; color: white; }
-    .pause { background: #64748b; }
-    .loop { background: #0ea5e9; }
-
-    .btn:hover { opacity: 0.85; }
+    .controls span:hover {
+        transform: scale(1.15);
+        opacity: 0.8;
+    }
 
     .loop.active {
-        background: #22c55e !important;
-        color: #0f172a;
+        color: #22c55e;
+    }
+
+    .progress-container {
+        width: 100%;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        color: #444;
+    }
+
+    input[type="range"] {
+        flex: 1;
+        -webkit-appearance: none;
+        height: 6px;
+        border-radius: 4px;
+        background: #ddd;
+        outline: none;
+        cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        background: #4f46e5;
+        border-radius: 50%;
+        cursor: pointer;
     }
 
     #status {
-        margin-top: 20px;
+        margin-top: 14px;
         font-size: 0.85rem;
-        opacity: 0.8;
+        color: #666;
     }
 </style>
 </head>
@@ -66,11 +105,22 @@
 <body>
 
 <div class="player">
+
+    <div class="cover"></div>
+
     <h2>audio.mp3</h2>
 
-    <button class="btn start" id="playBtn">Start</button>
-    <button class="btn pause" id="pauseBtn">Pause</button>
-    <button class="btn loop" id="loopBtn">Loop Off</button>
+    <div class="controls">
+        <span id="playBtn">▶️</span>
+        <span id="pauseBtn">⏸️</span>
+        <span id="loopBtn" class="loop">🔁</span>
+    </div>
+
+    <div class="progress-container">
+        <span id="current">0:00</span>
+        <input type="range" id="seek" value="0" min="0" max="100">
+        <span id="duration">0:00</span>
+    </div>
 
     <div id="status">Ready</div>
 </div>
@@ -83,6 +133,20 @@
     const pauseBtn = document.getElementById("pauseBtn");
     const loopBtn = document.getElementById("loopBtn");
     const status = document.getElementById("status");
+    const seek = document.getElementById("seek");
+    const current = document.getElementById("current");
+    const duration = document.getElementById("duration");
+
+    function formatTime(sec) {
+        sec = Math.floor(sec);
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
+    }
+
+    audio.onloadedmetadata = () => {
+        duration.textContent = formatTime(audio.duration);
+    };
 
     playBtn.onclick = () => {
         audio.play();
@@ -97,7 +161,18 @@
     loopBtn.onclick = () => {
         audio.loop = !audio.loop;
         loopBtn.classList.toggle("active", audio.loop);
-        loopBtn.textContent = audio.loop ? "Loop On" : "Loop Off";
+        status.textContent = audio.loop ? "Looping" : "Loop Off";
+    };
+
+    // Update progress bar
+    audio.ontimeupdate = () => {
+        seek.value = (audio.currentTime / audio.duration) * 100;
+        current.textContent = formatTime(audio.currentTime);
+    };
+
+    // Seeking
+    seek.oninput = () => {
+        audio.currentTime = (seek.value / 100) * audio.duration;
     };
 
     audio.onended = () => {
