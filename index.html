@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Modern Audio Player</title>
+<title>Comment est-il?</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
@@ -23,8 +23,8 @@
         backdrop-filter: blur(20px);
         border-radius: 26px;
         padding: 26px;
-        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
         text-align: center;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
     }
 
     .cover {
@@ -47,7 +47,8 @@
         display: flex;
         justify-content: center;
         gap: 24px;
-        font-size: 2rem;
+        font-size: 2.3rem;
+        align-items: center;
     }
 
     .controls span {
@@ -57,7 +58,7 @@
     }
 
     .controls span:hover {
-        transform: scale(1.15);
+        transform: scale(1.17);
         opacity: 0.8;
     }
 
@@ -108,12 +109,11 @@
 
     <div class="cover"></div>
 
-    <h2>audio.mp3</h2>
+    <h2>Comment est-il?</h2>
 
     <div class="controls">
-        <span id="playBtn">▶️</span>
-        <span id="pauseBtn">⏸️</span>
-        <span id="loopBtn" class="loop">🔁</span>
+        <span id="playPauseBtn">▶</span>
+        <span id="loopBtn" class="loop">⟳</span>
     </div>
 
     <div class="progress-container">
@@ -129,8 +129,7 @@
 
 <script>
     const audio = document.getElementById("audio");
-    const playBtn = document.getElementById("playBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
+    const playPauseBtn = document.getElementById("playPauseBtn");
     const loopBtn = document.getElementById("loopBtn");
     const status = document.getElementById("status");
     const seek = document.getElementById("seek");
@@ -148,35 +147,42 @@
         duration.textContent = formatTime(audio.duration);
     };
 
-    playBtn.onclick = () => {
-        audio.play();
-        status.textContent = "Playing";
+    // PLAY / PAUSE TOGGLE BUTTON
+    playPauseBtn.onclick = () => {
+        if (audio.paused) {
+            audio.play();
+            playPauseBtn.textContent = "▐▐";
+            status.textContent = "Playing";
+        } else {
+            audio.pause();
+            playPauseBtn.textContent = "▶";
+            status.textContent = "Paused";
+        }
     };
 
-    pauseBtn.onclick = () => {
-        audio.pause();
-        status.textContent = "Paused";
-    };
-
+    // LOOP BUTTON
     loopBtn.onclick = () => {
         audio.loop = !audio.loop;
         loopBtn.classList.toggle("active", audio.loop);
         status.textContent = audio.loop ? "Looping" : "Loop Off";
     };
 
-    // Update progress bar
+    // UPDATE PROGRESS AS AUDIO PLAYS
     audio.ontimeupdate = () => {
         seek.value = (audio.currentTime / audio.duration) * 100;
         current.textContent = formatTime(audio.currentTime);
     };
 
-    // Seeking
+    // SEEKING IN AUDIO
     seek.oninput = () => {
         audio.currentTime = (seek.value / 100) * audio.duration;
     };
 
     audio.onended = () => {
-        if (!audio.loop) status.textContent = "Finished";
+        if (!audio.loop) {
+            playPauseBtn.textContent = "▶";
+            status.textContent = "Finished";
+        }
     };
 </script>
 
