@@ -5,6 +5,60 @@
 <title>Comment est-il?</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
+<!-- HIDE PAGE UNTIL KILLSWITCH CHECK -->
+<style>
+    html { visibility: hidden; }
+</style>
+
+<!-- EARLY KILLSWITCH CHECK -->
+<script>
+(async function () {
+    const KILLSWITCH_URL =
+        "https://zwfucjsugrbjmcwhhcnj.supabase.co/functions/v1/status";
+
+    try {
+        const res = await fetch(KILLSWITCH_URL, { cache: "no-store" });
+        const text = (await res.text()).trim();
+
+        if (text === "yes") {
+            document.open();
+            document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+<title>Internal Server Error</title>
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: system-ui, sans-serif;
+    background: #ffffff;
+}
+</style>
+</head>
+<body>
+<div style="text-align:center">
+    <h1>Internal Server Error</h1>
+    <p>Try again later</p>
+</div>
+</body>
+</html>
+            `);
+            document.close();
+            return;
+        }
+    } catch (e) {
+        /* fail open */
+    }
+
+    // allow page to render
+    document.documentElement.style.visibility = "visible";
+})();
+</script>
+
 <style>
     body {
         margin: 0;
@@ -184,7 +238,7 @@
         }
     };
 
-    /* ================= KILLSWITCH ================= */
+    /* ================= KILLSWITCH (RUNTIME) ================= */
 
     const KILLSWITCH_URL =
         "https://zwfucjsugrbjmcwhhcnj.supabase.co/functions/v1/status";
