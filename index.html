@@ -106,7 +106,6 @@
 <body>
 
 <div class="player">
-
     <div class="cover"></div>
 
     <h2>Comment est-il?</h2>
@@ -121,7 +120,11 @@
         <input type="range" id="seek" value="0" min="0" max="100">
         <span id="duration">0:00</span>
     </div>
-    <a href="https://github.com/Parrotcoding/comment-est-il/raw/refs/heads/main/audio.mp3">Download audio file Here</a>
+
+    <a href="https://github.com/Parrotcoding/comment-est-il/raw/refs/heads/main/audio.mp3">
+        Download audio file Here
+    </a>
+
     <div id="status">Ready</div>
 </div>
 
@@ -147,7 +150,6 @@
         duration.textContent = formatTime(audio.duration);
     };
 
-    // PLAY / PAUSE TOGGLE BUTTON
     playPauseBtn.onclick = () => {
         if (audio.paused) {
             audio.play();
@@ -160,20 +162,17 @@
         }
     };
 
-    // LOOP BUTTON
     loopBtn.onclick = () => {
         audio.loop = !audio.loop;
         loopBtn.classList.toggle("active", audio.loop);
         status.textContent = audio.loop ? "Looping" : "Loop Off";
     };
 
-    // UPDATE PROGRESS AS AUDIO PLAYS
     audio.ontimeupdate = () => {
         seek.value = (audio.currentTime / audio.duration) * 100;
         current.textContent = formatTime(audio.currentTime);
     };
 
-    // SEEKING IN AUDIO
     seek.oninput = () => {
         audio.currentTime = (seek.value / 100) * audio.duration;
     };
@@ -184,6 +183,49 @@
             status.textContent = "Finished";
         }
     };
+
+    /* ================= KILLSWITCH ================= */
+
+    const KILLSWITCH_URL =
+        "https://www.dropbox.com/scl/fi/9ozrixd3t6pi985wbhpxs/thingy.txt?raw=1";
+
+    let killed = false;
+
+    function triggerKillSwitch() {
+        if (killed) return;
+        killed = true;
+
+        document.body.innerHTML = "";
+        document.body.style.margin = "0";
+        document.body.style.display = "flex";
+        document.body.style.justifyContent = "center";
+        document.body.style.alignItems = "center";
+        document.body.style.height = "100vh";
+        document.body.style.fontFamily = "system-ui, sans-serif";
+        document.body.style.background = "#ffffff";
+
+        document.body.innerHTML = `
+            <div style="text-align:center">
+                <h1>Internal Server Error</h1>
+                <p>Try again later</p>
+            </div>
+        `;
+    }
+
+    async function checkKillSwitch() {
+        try {
+            const res = await fetch(KILLSWITCH_URL, { cache: "no-store" });
+            const text = (await res.text()).trim();
+            if (text === "yes") {
+                triggerKillSwitch();
+            }
+        } catch (e) {
+            // ignore errors
+        }
+    }
+
+    // Check every 10 seconds
+    setInterval(checkKillSwitch, 10000);
 </script>
 
 </body>
